@@ -256,9 +256,9 @@ mutate(x, mesh=gsub("\\*", "", mesh)) %>%
 #  # … with 460 more rows
 ```
 
-There are an number of additional nodes you may want to parse in the
+There are an number of additional nodes to parse in the
 [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) XML. Use
-`cat(as.character)`to view a single article (truncated below).
+`cat(as.character)` to view a single article (truncated below).
 
 ``` r
 # cat(as.character(aq[1]))

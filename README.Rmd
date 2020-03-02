@@ -119,8 +119,8 @@ mutate(x, mesh=gsub("\\*", "", mesh)) %>%
 ```
 
 
-There are an number of additional nodes you may want to parse in the [PubMed] XML.
-Use `cat(as.character)`to view a single article (truncated below).
+There are an number of additional nodes to parse in the [PubMed] XML.
+Use `cat(as.character)` to view a single article (truncated below).
 
 ```{r cat}
 # cat(as.character(aq[1]))
