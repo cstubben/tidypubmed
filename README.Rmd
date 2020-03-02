@@ -68,9 +68,9 @@ options(width=110)
 x <- pubmed_abstract(aq)
 x
 mutate(x, text=ifelse(is.na(label), abstract, paste0(label, ": ", abstract))) %>%
-   group_by(pmid) %>%
-   summarize(abstract=paste(text, collapse=" ")) %>%
-   arrange(desc(pmid))
+  group_by(pmid) %>%
+  summarize(abstract=paste(text, collapse=" ")) %>%
+  arrange(desc(pmid))
 ```
 
 Optionally, use the [tokenizers] package to split abstract paragraphs into
@@ -89,9 +89,9 @@ options(width=110)
 x <- pubmed_authors(aq)
 x
 mutate(x, name=ifelse(lead(n) == 5, "et al", paste(last, initials))) %>%
-   filter(n < 5) %>%
-   group_by(pmid) %>%
-   summarize(authors=paste(name, collapse=", "))
+  filter(n < 5) %>%
+  group_by(pmid) %>%
+  summarize(authors=paste(name, collapse=", "))
 ```
 
 Group the keywords into a long character string.
@@ -111,7 +111,6 @@ Count the MeSH terms.
 
 ```{r mesh, echo=-1}
 options(width=110)
-# x <- pubmed_keywords(aq)
 x <- pubmed_mesh(aq)
 x
 mutate(x, mesh=gsub("\\*", "", mesh)) %>%

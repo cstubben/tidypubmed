@@ -102,9 +102,9 @@ x
 #  10 31546687         1 Reproductive success in plants is dependent on many factors but the prec… <NA>          
 #  # … with 130 more rows
 mutate(x, text=ifelse(is.na(label), abstract, paste0(label, ": ", abstract))) %>%
-   group_by(pmid) %>%
-   summarize(abstract=paste(text, collapse=" ")) %>%
-   arrange(desc(pmid))
+  group_by(pmid) %>%
+  summarize(abstract=paste(text, collapse=" ")) %>%
+  arrange(desc(pmid))
 #  # A tibble: 96 x 2
 #         pmid abstract                                                                                          
 #        <int> <chr>                                                                                             
@@ -165,9 +165,9 @@ x
 #  10 31779695     1 Aköz    Gökçe    G        <NA>  Gregor Mendel Institute, Austrian Academy of Sciences, Vien…
 #  # … with 396 more rows
 mutate(x, name=ifelse(lead(n) == 5, "et al", paste(last, initials))) %>%
-   filter(n < 5) %>%
-   group_by(pmid) %>%
-   summarize(authors=paste(name, collapse=", "))
+  filter(n < 5) %>%
+  group_by(pmid) %>%
+  summarize(authors=paste(name, collapse=", "))
 #  # A tibble: 107 x 2
 #         pmid authors                                        
 #        <int> <chr>                                          
@@ -226,7 +226,6 @@ arrange(x, pmid, keyword) %>%
 Count the MeSH terms.
 
 ``` r
-# x <- pubmed_keywords(aq)
 x <- pubmed_mesh(aq)
 x
 #  # A tibble: 937 x 6
