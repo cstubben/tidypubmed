@@ -37,6 +37,7 @@ pubmed_mesh <- function(nodes){
      }
    }
    x <- bind_rows(x, .id="pmid")
+   x$pmid <- as.integer(x$pmid)
    x <- mutate(x, mesh=ifelse( is.na(qualifier),
            paste0(descriptor, ifelse(majortopic == "Y", "*", "")),
            paste0(descriptor,"/", qualifier, ifelse(majortopic == "Y", "*", ""))))

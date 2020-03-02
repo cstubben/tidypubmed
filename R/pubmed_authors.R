@@ -21,6 +21,7 @@ pubmed_authors <- function(nodes){
    z <- lapply(nodes, function(x) xml2::xml_find_all(x, ".//Author"))
    x <- lapply(z, function(x) tibble::enframe( xml2::xml_text(xml2::xml_find_first(x, ".//LastName") ), "n", "last"))
    x <- bind_rows(x, .id="pmid")
+   x$pmid <- as.integer(x$pmid)
    x$first <- xml_text_first(z, "//ForeName")
    x$initials <- xml_text_first(z, "//Initials")
    x$orcid <- xml_text_first(z, '//Identifier[@Source="ORCID"]')

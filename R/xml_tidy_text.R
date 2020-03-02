@@ -19,7 +19,9 @@ xml_tidy_text <- function(nodes, xpath, label){
   if(!grepl("^\\.", xpath)) xpath <- paste0(".", xpath)
   if(missing(label)) label <- gsub(".*/", "", xpath)
   x <- lapply(nodes, function(x) xml2::xml_text(xml2::xml_find_all(x, xpath), trim = TRUE))
-  bind_rows(lapply(x, tibble::enframe, "n", label), .id="pmid")
+  x <- bind_rows(lapply(x, tibble::enframe, "n", label), .id="pmid")
+  x$pmid <- as.integer(x$pmid)
+  x
 }
 
 #' @describeIn xml_tidy_text Extract xml attribute in tidy format
@@ -28,5 +30,7 @@ xml_tidy_attr <- function(nodes, xpath, attr, label){
   if(!grepl("^\\.", xpath)) xpath <- paste0(".", xpath)
   if(missing(label)) label <- attr
   x <- lapply(nodes, function(x) xml2::xml_attr(xml2::xml_find_all(x, xpath), attr))
-  bind_rows(lapply(x, tibble::enframe, "n", label), .id="pmid")
+  x <- bind_rows(lapply(x, tibble::enframe, "n", label), .id="pmid")
+  x$pmid <- as.integer(x$pmid)
+  x
 }

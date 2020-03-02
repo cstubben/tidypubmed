@@ -33,7 +33,7 @@ pubmed_table <- function(nodes, etal=FALSE, iso=FALSE){
    x <- inner_join(x, aut, by="pmid")
    ## pub dates
    ppub <- sapply(nodes, function(x) paste( xml2::xml_text(xml2::xml_find_all(x, ".//PubDate/*")), collapse="-"))
-   x$year <- as.numeric(substr(ppub, 1,4))
+   x$year <- as.integer(substr(ppub, 1,4))
    x <- x[, c(1,4,5,3)]
    # journal
    if(iso){
@@ -55,5 +55,6 @@ pubmed_table <- function(nodes, etal=FALSE, iso=FALSE){
    x$country <- xml_text_first(nodes, "//MedlineJournalInfo/Country")
    x$doi <- xml_text_first(nodes, '//ArticleId[@IdType="doi"]')
    x$pii <- xml_text_first(nodes, '//ArticleId[@IdType="pii"]')
+   x$pmid <- as.integer(x$pmid)
    x
 }

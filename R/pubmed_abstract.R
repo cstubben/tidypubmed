@@ -21,6 +21,7 @@ pubmed_abstract <- function(nodes, sentence=FALSE){
    z <- lapply(nodes, function(x) xml2::xml_find_all(x, ".//AbstractText"))
    x <- lapply(lapply(z, xml2::xml_text, trim=TRUE), tibble::enframe, "paragraph", "abstract")
    x <- bind_rows(x, .id="pmid")
+   x$pmid <- as.integer(x$pmid)
    x$label <- unlist(lapply(z, xml2::xml_attr, "Label"))
    if(sentence){
       x1 <-lapply(x$abstract, tokenizers::tokenize_sentences)

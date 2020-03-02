@@ -17,6 +17,7 @@ pubmed_keywords <- function(nodes){
    y1 <- xml_tidy_attr(nodes, "//Keyword", "MajorTopicYN", "majortopic")
    if(nrow(x1) != nrow(y1)) message("WARNING: missing some MajorTopic attribute nodes")
    k1 <- right_join(y1, x1, by=c("pmid", "n"))
+   k1$pmid <- as.integer(k1$pmid)
    ## fix all CAPS if 5 or more
    n <- grep("^[A-Z ]{5,}$", k1$keyword)
    if(length(n)>0) k1$keyword[n] <- tolower(k1$keyword[n])
