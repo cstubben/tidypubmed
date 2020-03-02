@@ -143,9 +143,9 @@ pubmed_abstract(aq, sentence=TRUE)
 #  # … with 936 more rows
 ```
 
-List the authors and first affliation. Group the authors by PMID and
-replace five or more names with et al. The untidy author string is also
-included the in `pubmed_table` above.
+List the authors and first affliation and then replace five or more
+names with et al. The untidy author string is also included the in
+`pubmed_table` above.
 
 ``` r
 x <- pubmed_authors(aq)

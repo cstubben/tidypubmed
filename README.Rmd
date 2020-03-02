@@ -81,7 +81,7 @@ options(width=110)
 pubmed_abstract(aq, sentence=TRUE)
 ```
 
-List the authors and first affliation.   Group the authors by PMID and replace five or more names with
+List the authors and first affliation and then replace five or more names with
 et al.  The untidy author string is also included the in `pubmed_table` above.
 
 ```{r authors, echo=-1}
