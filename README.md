@@ -27,8 +27,11 @@ results. The two functions are wrappers for `entrez_search` and
 will also parse the results into a `xml_nodeset` with PMID names.
 
 ``` r
+library(tidypubmed)
 res <- pubmed_search("aquilegia[TITLE]")
+#  107 results found
 aq <- pubmed_fetch(res)
+#  Created xml_nodeset with 107 articles
 ```
 
 The package includes five functions to parse the article nodes.

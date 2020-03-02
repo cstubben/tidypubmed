@@ -30,7 +30,7 @@ Search [PubMed] and download the results.  The two functions are wrappers for
 `entrez_search` and `entrez_fetch` in [rentrez] and will also parse the results
 into a `xml_nodeset` with PMID names.
 
-```{r pmc_xml, message=FALSE, echo=-1}
+```{r pmc_xml}
 library(tidypubmed)
 res <- pubmed_search("aquilegia[TITLE]")
 aq <- pubmed_fetch(res)
