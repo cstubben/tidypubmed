@@ -140,7 +140,7 @@ pubmed_abstract(aq, sentence=TRUE)
 
 List the authors and first affliation. Group the authors by PMID and
 replace five or more names with et al. The untidy author string is also
-include in `pubmed_table` above.
+included the in `pubmed_table` above.
 
 ``` r
 x <- pubmed_authors(aq)
@@ -179,7 +179,7 @@ mutate(x, name=ifelse(lead(n) == 5, "et al", paste(last, initials))) %>%
 #  # … with 97 more rows
 ```
 
-Group the keywords into an untidy string.
+Group the keywords into a long character string.
 
 ``` r
 x <- pubmed_keywords(aq)
@@ -256,7 +256,7 @@ mutate(x, mesh=gsub("\\*", "", mesh)) %>%
 #  # … with 460 more rows
 ```
 
-There are an number of additional nodes to parse in the
+There are an number of additional nodes that can be parsed in the
 [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) XML. Use
 `cat(as.character)` to view a single article (truncated below).
 
