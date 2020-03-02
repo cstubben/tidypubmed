@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 
 The [PubMed] database at NCBI includes 30 million citations from biomedical and
 life sciences journals. The abstracts and article metadata are easy to search using
-the [rentrez] package, but parsing the XML can be challenging. The `tidypubmed`
+the [rentrez] package, but parsing the [PubMed XML] can be challenging. The `tidypubmed`
 package uses the [xml2] package to parse abstracts, MeSH terms, keywords, authors
 and citation details into [tidy] datasets.
 
@@ -27,7 +27,7 @@ devtools::install_github("cstubben/tidypubmed")
 
 
 Search [PubMed] and download the results.  The two functions are wrappers for
-`entrez_search` and `entrez_fetch` in [rentrez] and will parse the results
+`entrez_search` and `entrez_fetch` in [rentrez] and will also parse the results
 into a `xml_nodeset` with PMID names.
 
 ```{r pmc_xml, message=FALSE, echo=-1}
@@ -119,7 +119,7 @@ mutate(x, mesh=gsub("\\*", "", mesh)) %>%
 ```
 
 
-There are an number of additional nodes that can be parsed in the [PubMed] XML.
+There are an number of additional nodes that can be parsed in the [PubMed XML].
 Use `cat(as.character)` to view a single article (truncated below).
 
 ```{r cat}
@@ -135,7 +135,7 @@ xml_tidy_text(aq, "//Chemical/NameOfSubstance", "chemical")
 xml_tidy_text(aq, "//Reference//ArticleId[@IdType='pubmed']", "cited")
 ```
 
-
+[PubMed XML]: https://www.nlm.nih.gov/bsd/licensee/elements_descriptions.html
 [tidy]: https://r4ds.had.co.nz/tidy-data.html
 [rentrez]: https://github.com/ropensci/rentrez
 [PubMed]: https://www.ncbi.nlm.nih.gov/pubmed/

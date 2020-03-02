@@ -5,7 +5,9 @@ The [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) database at NCBI
 includes 30 million citations from biomedical and life sciences
 journals. The abstracts and article metadata are easy to search using
 the [rentrez](https://github.com/ropensci/rentrez) package, but parsing
-the XML can be challenging. The `tidypubmed` package uses the
+the [PubMed
+XML](https://www.nlm.nih.gov/bsd/licensee/elements_descriptions.html)
+can be challenging. The `tidypubmed` package uses the
 [xml2](https://github.com/r-lib/xml2) package to parse abstracts, MeSH
 terms, keywords, authors and citation details into
 [tidy](https://r4ds.had.co.nz/tidy-data.html) datasets.
@@ -22,7 +24,7 @@ devtools::install_github("cstubben/tidypubmed")
 Search [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) and download the
 results. The two functions are wrappers for `entrez_search` and
 `entrez_fetch` in [rentrez](https://github.com/ropensci/rentrez) and
-will parse the results into a `xml_nodeset` with PMID names.
+will also parse the results into a `xml_nodeset` with PMID names.
 
 ``` r
 res <- pubmed_search("aquilegia[TITLE]")
@@ -257,8 +259,9 @@ mutate(x, mesh=gsub("\\*", "", mesh)) %>%
 ```
 
 There are an number of additional nodes that can be parsed in the
-[PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) XML. Use
-`cat(as.character)` to view a single article (truncated below).
+[PubMed
+XML](https://www.nlm.nih.gov/bsd/licensee/elements_descriptions.html).
+Use `cat(as.character)` to view a single article (truncated below).
 
 ``` r
 # cat(as.character(aq[1]))
