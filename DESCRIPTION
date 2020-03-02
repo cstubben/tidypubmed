@@ -1,0 +1,19 @@
+Package: tidypubmed
+Type: Package
+Title: Parse XML documents from PubMed
+Version: 1.0
+Authors@R: person("Chris", "Stubben", role = c("aut", "cre"), email = "chris.stubben@hci.utah.edu")
+Description: Parse XML documents from PubMed into tidy datasets.
+URL: https://github.com/ropensci/tidypubmed
+BugReports: https://github.com/ropensci/tidypubmed/issues
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.5.0),
+    dplyr
+Imports:
+    xml2,
+    tokenizers,
+	rentrez,
+    tibble
+RoxygenNote: 7.0.2

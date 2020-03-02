@@ -1,0 +1,144 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "# "
+)
+```
+
+# tidypubmed
+
+The [PubMed] database at NCBI includes 30 million citations from biomedical and
+life sciences journals. The abstracts and article metadata are easy to search using
+the [rentrez] package, but parsing the XML can be challenging. The `tidypubmed`
+package uses the [xml2] package to parse abstracts, MeSH terms, keywords, authors
+and citation details into [tidy] datasets.
+
+## Installation
+
+Use [devtools] to install the package.
+
+```{r install, eval=FALSE}
+devtools::install_github("ropensci/tidypmc")
+```
+
+
+Search [PubMed] and download the results.  The two functions are wrappers for
+`entrez_search` and `entrez_fetch` in [rentrez] and will parse the results
+into a `xml_nodeset` with PMID names.
+
+```{r pmc_xml, message=FALSE, echo=-1}
+library(tidypubmed)
+res <- pubmed_search("aquilegia[TITLE]")
+aq <- pubmed_fetch(res)
+```
+
+
+
+The package includes five functions to parse the article nodes.
+
+
+|R function       |Description        |
+|:----------------|:------------------|
+|`pubmed_table `  |Citation metadata  |
+|`pubmed_abstract`|Abstract paragraphs|
+|`pubmed_authors` |Authors            |
+|`pubmed_keywords`|Keywords           |
+|`pubmed_mesh`    |MeSH terms         |
+
+
+
+Parse the authors, year, title, journal and other metadata into a table with one row per PMID.
+
+```{r cite, echo=-1}
+options(width=110)
+x <- pubmed_table(aq)
+x
+count(x, journal, country, sort=TRUE)
+```
+
+
+Parse the abstracts and combine the label and paragraph into a single row per article.
+
+```{r abstract1, echo=-1}
+options(width=110)
+x <- pubmed_abstract(aq)
+x
+mutate(x, text=ifelse(is.na(label), abstract, paste0(label, ": ", abstract))) %>%
+   group_by(pmid) %>%
+   summarize(abstract=paste(text, collapse=" ")) %>%
+   arrange(desc(pmid))
+```
+
+Optionally, use the [tokenizers] package to split abstract paragraphs into
+sentences.
+
+```{r abstract2, echo=-1}
+options(width=110)
+pubmed_abstract(aq, sentence=TRUE)
+```
+
+List the authors and first affliation.   Group the authors by PMID and replace five or more names with
+et al.  The untidy author string is also include in `pubmed_table` above.
+
+```{r authors, echo=-1}
+options(width=110)
+x <- pubmed_authors(aq)
+x
+mutate(x, name=ifelse(lead(n) == 5, "et al", paste(last, initials))) %>%
+   filter(n < 5) %>%
+   group_by(pmid) %>%
+   summarize(authors=paste(name, collapse=", "))
+```
+
+Group the keywords into an untidy string.
+
+```{r key, echo=-1}
+options(width=110)
+x <- pubmed_keywords(aq)
+x
+arrange(x, pmid, keyword) %>%
+  group_by(pmid) %>%
+  summarize(keywords= paste(keyword, collapse=", ")) %>%
+  arrange(desc(pmid))
+```
+
+
+Count the MeSH terms.
+
+```{r mesh, echo=-1}
+options(width=110)
+# x <- pubmed_keywords(aq)
+x <- pubmed_mesh(aq)
+x
+mutate(x, mesh=gsub("\\*", "", mesh)) %>%
+  count(mesh, sort=TRUE)
+```
+
+
+There are an number of additional nodes you may want to parse in the [PubMed] XML.
+Use `cat(as.character)`to view a single article (truncated below).
+
+```{r cat}
+# cat(as.character(aq[1]))
+cat(substr(as.character(aq[1]),1,770))
+```
+
+Parse a specific node using the helper function `xml_tidy_text` and an xpath expression.
+
+```{r xml_tidy}
+xml_tidy_text(aq, "//Chemical/NameOfSubstance", "chemical")
+
+xml_tidy_text(aq, "//Reference//ArticleId[@IdType='pubmed']", "cited")
+```
+
+
+[tidy]: https://r4ds.had.co.nz/tidy-data.html
+[rentrez]: https://github.com/ropensci/rentrez
+[PubMed]: https://www.ncbi.nlm.nih.gov/pubmed/
+[devtools]: https://github.com/r-lib/devtools
+[tokenizers]: https://lincolnmullen.com/software/tokenizers/
+[xml2]: https://github.com/r-lib/xml2
