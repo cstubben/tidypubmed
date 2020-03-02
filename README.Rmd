@@ -22,7 +22,7 @@ and citation details into [tidy] datasets.
 Use [devtools] to install the package.
 
 ```{r install, eval=FALSE}
-devtools::install_github("ropensci/tidypmc")
+devtools::install_github("cstubben/tidypubmed")
 ```
 
 

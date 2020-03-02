@@ -16,7 +16,7 @@ Use [devtools](https://github.com/r-lib/devtools) to install the
 package.
 
 ``` r
-devtools::install_github("ropensci/tidypmc")
+devtools::install_github("cstubben/tidypubmed")
 ```
 
 Search [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) and download the
