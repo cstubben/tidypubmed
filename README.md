@@ -143,7 +143,7 @@ pubmed_abstract(aq, sentence=TRUE)
 #  # … with 936 more rows
 ```
 
-List the authors and first affliation and then replace five or more
+List the authors and first affiliation and then replace five or more
 names with et al. The untidy author string is also included the in
 `pubmed_table` above.
 
@@ -184,7 +184,7 @@ mutate(x, name=ifelse(lead(n) == 5, "et al", paste(last, initials))) %>%
 #  # … with 97 more rows
 ```
 
-Group the keywords into a long character string.
+Check the keywords.
 
 ``` r
 x <- pubmed_keywords(aq)
@@ -203,24 +203,6 @@ x
 #   9 31934675     5 N          Intraspecific variation
 #  10 31934675     6 N          Nectar spur            
 #  # … with 134 more rows
-arrange(x, pmid, keyword) %>%
-  group_by(pmid) %>%
-  summarize(keywords= paste(keyword, collapse=", ")) %>%
-  arrange(desc(pmid))
-#  # A tibble: 25 x 2
-#         pmid keywords                                                                                          
-#        <int> <chr>                                                                                             
-#   1 32068783 Aquilegia, floral organ identity, novelty, staminode                                              
-#   2 31934675 Aquilegia rockii, Cell number, Columbine, Floral polymorphism, Intraspecific variation, Nectar sp…
-#   3 31681357 Aquilegia, floral meristem identity, inflorescence structure, leafy, unusual floral organs        
-#   4 31546687 Aquilegia, floral meristem, flowering, flowering locus t, genetic pathways, inflorescence meriste…
-#   5 31438840 Aquilegia, Diversification, Evolution, Gene expression, Nectar spur, Petal development, RNAseq    
-#   6 30793209 adaptation, Aquilegia, ecological specialization, selection, speciation                           
-#   7 30687492 Aquilegia, genetic swamping, herbarium, hybridization, introgression, range boundaries            
-#   8 30325307 Aquilegia, chromosome evolution, chromosomes, gene expression, genetics, genome evolution, genomi…
-#   9 30145791 Aquilegia, co-option, nectary development, style development, stylish                             
-#  10 30047083 Aquilegia viridiflora, Gram-positive, Leifsonia flava sp. nov., polyphasic taxonomy, rhizosphere  
-#  # … with 15 more rows
 ```
 
 Count the MeSH terms.

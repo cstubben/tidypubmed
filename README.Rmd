@@ -81,7 +81,7 @@ options(width=110)
 pubmed_abstract(aq, sentence=TRUE)
 ```
 
-List the authors and first affliation and then replace five or more names with
+List the authors and first affiliation and then replace five or more names with
 et al.  The untidy author string is also included the in `pubmed_table` above.
 
 ```{r authors, echo=-1}
@@ -94,16 +94,12 @@ mutate(x, name=ifelse(lead(n) == 5, "et al", paste(last, initials))) %>%
   summarize(authors=paste(name, collapse=", "))
 ```
 
-Group the keywords into a long character string.
+Check the keywords.
 
 ```{r key, echo=-1}
 options(width=110)
 x <- pubmed_keywords(aq)
 x
-arrange(x, pmid, keyword) %>%
-  group_by(pmid) %>%
-  summarize(keywords= paste(keyword, collapse=", ")) %>%
-  arrange(desc(pmid))
 ```
 
 
