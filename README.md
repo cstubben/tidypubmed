@@ -144,7 +144,7 @@ pubmed_abstract(aq, sentence=TRUE)
 ```
 
 List the authors and first affiliation and then replace five or more
-names with et al. The untidy author string is also included the in
+names with et al. The untidy author string is also included in the
 `pubmed_table` above.
 
 ``` r
