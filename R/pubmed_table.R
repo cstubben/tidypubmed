@@ -16,6 +16,7 @@ pubmed_table <- function(nodes, etal=FALSE, iso=FALSE){
    # title
    x <- xml_tidy_text(nodes, "//ArticleTitle", "title")
    x$title <- gsub("\\.$", "", x$title)
+   if(nrow(x) != length(nodes)) message("WARNING: One or more ArticleTitle is missing")
    # x$n <- 1:nrow(x)
    # authors
    if(etal){
@@ -30,7 +31,8 @@ pubmed_table <- function(nodes, etal=FALSE, iso=FALSE){
         group_by(pmid) %>%
         summarize(authors=paste(name, collapse=", "))
    }
-   x <- inner_join(x, aut, by="pmid")
+   ## some authors are missing
+   x <- left_join(x, aut, by="pmid")
    ## pub dates
    ppub <- sapply(nodes, function(x) paste( xml2::xml_text(xml2::xml_find_all(x, ".//PubDate/*")), collapse="-"))
    x$year <- as.integer(substr(ppub, 1,4))
