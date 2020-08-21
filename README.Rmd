@@ -38,16 +38,17 @@ aq <- pubmed_fetch(res)
 
 
 
-The package includes five functions to parse the article nodes.
+The package includes six functions to parse the article nodes.
 
 
-|R function       |Description        |
-|:----------------|:------------------|
-|`pubmed_table `  |Citation metadata  |
-|`pubmed_abstract`|Abstract paragraphs|
-|`pubmed_authors` |Authors            |
-|`pubmed_keywords`|Keywords           |
-|`pubmed_mesh`    |MeSH terms         |
+|R function        |Description        |
+|:-----------------|:------------------|
+|`pubmed_table `   |Citation metadata  |
+|`pubmed_abstract` |Abstract paragraphs|
+|`pubmed_authors`  |Authors            |
+|`pubmed_keywords` |Keywords           |
+|`pubmed_mesh`     |MeSH terms         |
+|`pubmed_databanks`|Databanks          |
 
 
 
@@ -113,6 +114,14 @@ mutate(x, mesh=gsub("\\*", "", mesh)) %>%
   count(mesh, sort=TRUE)
 ```
 
+Inspect databanks.
+
+``` {r databanks, echo=-1}
+options(width=110)
+x <- pubmed_databanks(aq)
+x
+count(x, pmid, databank, sort=TRUE)
+```
 
 There are an number of additional nodes that can be parsed in the [PubMed XML].
 Use `cat(as.character)` to view a single article (truncated below).
