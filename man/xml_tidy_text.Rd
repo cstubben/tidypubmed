@@ -5,7 +5,7 @@
 \alias{xml_tidy_attr}
 \title{Extract xml text in tidy format}
 \usage{
-xml_tidy_text(nodes, xpath, label)
+xml_tidy_text(nodes, xpath, label, counter = "n", id = "pmid")
 
 xml_tidy_attr(nodes, xpath, attr, label)
 }
@@ -15,6 +15,10 @@ xml_tidy_attr(nodes, xpath, attr, label)
 \item{xpath}{xpath expression}
 
 \item{label}{column name, default is last part of xpath}
+
+\item{counter}{name for counter column, default is `n`}
+
+\item{id}{name for id column, default is `pmid`}
 
 \item{attr}{xml attribute name}
 }

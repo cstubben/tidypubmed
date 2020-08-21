@@ -2,6 +2,7 @@
 
 export(pubmed_abstract)
 export(pubmed_authors)
+export(pubmed_databanks)
 export(pubmed_fetch)
 export(pubmed_keywords)
 export(pubmed_mesh)
