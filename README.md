@@ -18,7 +18,7 @@ Use [devtools](https://github.com/r-lib/devtools) to install the
 package.
 
 ``` r
-devtools::install_github("cstubben/tidypubmed")
+devtools::install_github("maia-sh/tidypubmed")
 ```
 
 Search [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) and download the
@@ -28,21 +28,65 @@ will also parse the results into a `xml_nodeset` with PMID names.
 
 ``` r
 library(tidypubmed)
+#  Loading required package: dplyr
+#  Warning: package 'dplyr' was built under R version 4.1.2
+#  
+#  Attaching package: 'dplyr'
+#  The following objects are masked from 'package:stats':
+#  
+#      filter, lag
+#  The following objects are masked from 'package:base':
+#  
+#      intersect, setdiff, setequal, union
 res <- pubmed_search("aquilegia[TITLE]")
-#  107 results found
+#  127 results found
 aq <- pubmed_fetch(res)
-#  Created xml_nodeset with 107 articles
+#  Created xml_nodeset with 127 articles
 ```
 
-The package includes five functions to parse the article nodes.
+Alternatively, you can download the raw xml and save to disk.
 
-| R function        | Description         |
-| :---------------- | :------------------ |
-| `pubmed_table`    | Citation metadata   |
-| `pubmed_abstract` | Abstract paragraphs |
-| `pubmed_authors`  | Authors             |
-| `pubmed_keywords` | Keywords            |
-| `pubmed_mesh`     | MeSH terms          |
+``` r
+download_pubmed(99999999,
+                dir = here::here("data", "raw", "pubmed"),
+                api_key = keyring::key_get("ncbi-pubmed")
+)
+```
+
+You can use `purrr::walk` to download many records.
+
+``` r
+purrr::walk(download_pubmed,
+            dir = here::here("data", "raw", "pubmed"),
+            api_key = keyring::key_get("ncbi-pubmed")
+)
+```
+
+The package includes six functions to parse the article nodes.
+
+| R function         | Description         |
+|:-------------------|:--------------------|
+| `pubmed_table`     | Citation metadata   |
+| `pubmed_abstract`  | Abstract paragraphs |
+| `pubmed_authors`   | Authors             |
+| `pubmed_keywords`  | Keywords            |
+| `pubmed_mesh`      | MeSH terms          |
+| `pubmed_databanks` | Databanks           |
+| `pubmed_pubtypes`  | Publication types   |
+
+The package includes a wrapper function to parse a specified article
+node types from a single PubMed record. Similar to downloading, you can
+use `purrr::map_dfr` to parse many records.
+
+``` r
+extract_pubmed(filepath =  = here::here("data", "raw", "pubmed", "99999999.xml"),
+               datatype = "main", # one of c("main", "abstract", "databanks", "authors", "mesh", "keywords", "pubtypes"). "main" indicated `pubmed_table`
+)
+
+here::here("data", "raw", "pubmed") %>% 
+  fs::dir_ls() %>% 
+  purrr::map_dfr(extract_pubmed, datatype = "main")
+```
 
 Parse the authors, year, title, journal and other metadata into a table
 with one row per PMID.
@@ -50,35 +94,35 @@ with one row per PMID.
 ``` r
 x <- pubmed_table(aq)
 x
-#  # A tibble: 107 x 15
-#        pmid authors    year title   journal volume issue pages pubmodel ppub  epub  pubtype country doi   pii  
-#       <int> <chr>     <int> <chr>   <chr>   <chr>  <chr> <chr> <chr>    <chr> <chr> <chr>   <chr>   <chr> <chr>
-#   1  3.21e7 Meaders …  2020 Develo… Annals… <NA>   <NA>  <NA>  Print-E… 2020… 2020… Journa… England 10.1… 5739…
-#   2  3.19e7 Zhou ZL,…  2019 Cell n… Plant … 41     5     307-… Electro… 2019… 2019… Journa… China   10.1… S246…
-#   3  3.18e7 Aköz G, …  2019 The Aq… Genome… 20     1     256   Electro… 2019… 2019… Journa… England 10.1… 10.1…
-#   4  3.17e7 Sharma B…  2019 Homolo… Fronti… 10     <NA>  1218  Electro… 2019  2019… Journa… Switze… 10.3… <NA> 
-#   5  3.15e7 Sharma B…  2019 Develo… Genes   10     10    <NA>  Electro… 2019… 2019… Journa… Switze… 10.3… gene…
-#   6  3.14e7 Ballerin…  2019 Compar… BMC ge… 20     1     668   Electro… 2019… 2019… Compar… England 10.1… 10.1…
-#   7  3.08e7 Li MR, W…  2019 Rapid … Genome… 11     3     919-… Print    2019… <NA>  Journa… England 10.1… 5355…
-#   8  3.07e7 Groh JS,…  2019 On the… AoB PL… 11     1     ply0… Electro… 2019… 2018… Journa… England 10.1… ply0…
-#   9  3.03e7 Filiault…  2018 The Aq… eLife   7      <NA>  <NA>  Electro… 2018… 2018… Journa… England 10.7… 36426
-#  10  3.01e7 Min Y, B…  2019 Homolo… The Ne… 221    2     1090… Print-E… 2019… 2018… Journa… England 10.1… <NA> 
-#  # … with 97 more rows
+#  # A tibble: 127 × 16
+#         pmid authors     year title journal volume issue pages pubmodel ppub  epub  pubtype country doi   pii  
+#        <int> <chr>      <int> <chr> <chr>   <chr>  <chr> <chr> <chr>    <chr> <chr> <chr>   <chr>   <chr> <chr>
+#   1 35176226 Cabin Z, …  2022 Non-… Curren… <NA>   <NA>  <NA>  Print-E… 2022… 2022… Journa… England 10.1… S096…
+#   2 35175330 Min Y, Co…  2022 Quan… Develo… 149    4     <NA>  Print-E… 2022… 2022… Journa… England 10.1… 2743…
+#   3 35039842 Yang S, W…  2022 Char… Hortic… <NA>   <NA>  <NA>  Print-E… 2022… 2022… Journa… England 10.1… 6510…
+#   4 34508638 Conway SJ…  2021 Bras… Annals… 128    7     931-… Print    2021… <NA>  Journa… England 10.1… 6368…
+#   5 34457112 Jan H, Sh…  2021 Plan… Oxidat… 2021   <NA>  4786… Electro… 2021  2021… Journa… United… 10.1… <NA> 
+#   6 34448283 Xue C, Ge…  2021 Dive… Molecu… 30     22    5796… Print-E… 2021… 2021… Journa… England 10.1… <NA> 
+#   7 34270789 Edwards M…  2021 Gene… Evolut… 75     9     2197… Print-E… 2021… 2021… Journa… United… 10.1… <NA> 
+#   8 34098912 Jan H, Us…  2021 Phyt… BMC co… 21     1     165   Electro… 2021… 2021… Journa… England 10.1… 10.1…
+#   9 33888127 Wang HY, …  2021 Opti… BMC ch… 15     1     26    Electro… 2021… 2021… Journa… Switze… 10.1… 10.1…
+#  10 33854846 Zhang W, …  2021 Comp… Applic… 9      3     e114… Electro… 2021… 2021… Journa… United… 10.1… APS3…
+#  # … with 117 more rows, and 1 more variable: pmc <chr>
 count(x, journal, country, sort=TRUE)
-#  # A tibble: 55 x 3
+#  # A tibble: 66 × 3
 #     journal                                               country           n
 #     <chr>                                                 <chr>         <int>
-#   1 Evolution; international journal of organic evolution United States    10
+#   1 Evolution; international journal of organic evolution United States    11
 #   2 Acta poloniae pharmaceutica                           Poland            7
-#   3 American journal of botany                            United States     6
-#   4 Plant disease                                         United States     6
-#   5 The New phytologist                                   England           5
-#   6 Annals of botany                                      England           4
+#   3 The New phytologist                                   England           7
+#   4 American journal of botany                            United States     6
+#   5 Plant disease                                         United States     6
+#   6 Annals of botany                                      England           5
 #   7 Chemical & pharmaceutical bulletin                    Japan             4
-#   8 PloS one                                              United States     4
-#   9 Molecular ecology                                     England           3
-#  10 Biochemical Society transactions                      England           2
-#  # … with 45 more rows
+#   8 Molecular ecology                                     England           4
+#   9 PloS one                                              United States     4
+#  10 Genome biology                                        England           3
+#  # … with 56 more rows
 ```
 
 Parse the abstracts and combine the label and paragraph into a single
@@ -87,38 +131,38 @@ row per article.
 ``` r
 x <- pubmed_abstract(aq)
 x
-#  # A tibble: 140 x 4
-#         pmid paragraph abstract                                                                  label         
-#        <int>     <int> <chr>                                                                     <chr>         
-#   1 32068783         1 The ranunculid model system Aquilegia is notable for the presence of a f… BACKGROUND AN…
-#   2 32068783         2 We used histological techniques to describe the development of the Aquil… METHODS       
-#   3 32068783         3 Our developmental study has revealed novel features of staminode develop… KEY RESULTS   
-#   4 32068783         4 These findings suggest a model in which the novel staminode identity pro… CONCLUSIONS   
-#   5 31934675         1 Variations of nectar spur length allow pollinators to utilize resources … <NA>          
-#   6 31779695         1 Whole-genome duplications (WGDs) have dominated the evolutionary history… BACKGROUND    
-#   7 31779695         2 Within-genome synteny confirms that columbines are ancient tetraploids, … RESULTS       
-#   8 31779695         3 Novel analyses of synteny sharing together with the well-preserved struc… CONCLUSIONS   
-#   9 31681357         1 Homologs of the transcription factor LEAFY (LFY) and the F-box family me… <NA>          
-#  10 31546687         1 Reproductive success in plants is dependent on many factors but the prec… <NA>          
-#  # … with 130 more rows
+#  # A tibble: 170 × 4
+#         pmid paragraph abstract                                                                           label
+#        <int>     <int> <chr>                                                                              <chr>
+#   1 35176226         1 Here, we describe a polymorphic population of Aquilegia coerulea with a naturally… <NA> 
+#   2 35175330         1 In-depth investigation of any developmental process in plants requires knowledge … <NA> 
+#   3 35039842         1 There are several causes for the great diversity in floral terpenes. The terpene … <NA> 
+#   4 34508638         1 Aquilegia produce elongated, three-dimensional petal spurs that fill with nectar … BACK…
+#   5 34508638         2 We exogenously applied the biologically active brassinosteroid brassinolide to de… METH…
+#   6 34508638         3 We identified a total of three Aquilegia homologues of the BES1/BZR1 protein fami… KEY …
+#   7 34508638         4 Collectively, our results support a role for brassinosteroids in anisotropic cell… CONC…
+#   8 34457112         1 The anti-cancer, anti-aging, anti-inflammatory, antioxidant, and anti-diabetic ef… <NA> 
+#   9 34448283         1 Quaternary climate oscillations and geographical heterogeneity play important rol… <NA> 
+#  10 34270789         1 Interactions with animal pollinators have helped shape the stunning diversity of … <NA> 
+#  # … with 160 more rows
 mutate(x, text=ifelse(is.na(label), abstract, paste0(label, ": ", abstract))) %>%
   group_by(pmid) %>%
   summarize(abstract=paste(text, collapse=" ")) %>%
   arrange(desc(pmid))
-#  # A tibble: 96 x 2
+#  # A tibble: 114 × 2
 #         pmid abstract                                                                                          
 #        <int> <chr>                                                                                             
-#   1 32068783 BACKGROUND AND AIMS: The ranunculid model system Aquilegia is notable for the presence of a fifth…
-#   2 31934675 Variations of nectar spur length allow pollinators to utilize resources in novel ways, leading to…
-#   3 31779695 BACKGROUND: Whole-genome duplications (WGDs) have dominated the evolutionary history of plants. O…
-#   4 31681357 Homologs of the transcription factor LEAFY (LFY) and the F-box family member UNUSUAL FLORAL ORGAN…
-#   5 31546687 Reproductive success in plants is dependent on many factors but the precise timing of flowering i…
-#   6 31438840 BACKGROUND: Petal nectar spurs, which facilitate pollination through animal attraction and pollen…
-#   7 30861746 Eryngium amethystinum (amethyst sea holly) is a herbaceous plant commonly grown as an ornamental …
-#   8 30812597 Aquilegia flabellata Sieb. and Zucc. (columbine) is a perennial garden species belonging to the f…
-#   9 30793209 Elucidating the mechanisms underlying the genetic divergence between closely related species is c…
-#  10 30764246 Aquilegia flabellata (Ranunculaceae), fan columbine, is a perennial herbaceous plant with brillia…
-#  # … with 86 more rows
+#   1 35176226 Here, we describe a polymorphic population of Aquilegia coerulea with a naturally occurring flora…
+#   2 35175330 In-depth investigation of any developmental process in plants requires knowledge of both the unde…
+#   3 35039842 There are several causes for the great diversity in floral terpenes. The terpene products are det…
+#   4 34508638 BACKGROUND AND AIMS: Aquilegia produce elongated, three-dimensional petal spurs that fill with ne…
+#   5 34457112 The anti-cancer, anti-aging, anti-inflammatory, antioxidant, and anti-diabetic effects of zinc ox…
+#   6 34448283 Quaternary climate oscillations and geographical heterogeneity play important roles in determinin…
+#   7 34270789 Interactions with animal pollinators have helped shape the stunning diversity of flower morpholog…
+#   8 34098912 BACKGROUND: Himalayan Columbine (Aquilegia pubiflora Wall. Ex Royle) is a medicinal plant and hav…
+#   9 33888127 BACKGROUND: The floral scents of plants play a key role in plant reproduction through the communi…
+#  10 33854846 Premise: Aquilegia is an ideal taxon for studying the evolution of adaptive radiation. Current ph…
+#  # … with 104 more rows
 ```
 
 Optionally, use the
@@ -127,20 +171,20 @@ split abstract paragraphs into sentences.
 
 ``` r
 pubmed_abstract(aq, sentence=TRUE)
-#  # A tibble: 946 x 5
-#         pmid paragraph sentence abstract                                                          label        
-#        <int>     <int>    <int> <chr>                                                             <chr>        
-#   1 32068783         1        1 The ranunculid model system Aquilegia is notable for the presenc… BACKGROUND A…
-#   2 32068783         1        2 Previous studies have found that the genetic basis for the ident… BACKGROUND A…
-#   3 32068783         2        1 We used histological techniques to describe the development of t… METHODS      
-#   4 32068783         2        2 These results have been compared to four other Aquilegia species… METHODS      
-#   5 32068783         2        3 As a complement, RNA-seq has been conducted at two developmental… METHODS      
-#   6 32068783         3        1 Our developmental study has revealed novel features of staminode… KEY RESULTS  
-#   7 32068783         3        2 In addition, patterns of abaxial/adaxial differentiation are obs… KEY RESULTS  
-#   8 32068783         3        3 The comparative transcriptomics are consistent with the observed… KEY RESULTS  
-#   9 32068783         4        1 These findings suggest a model in which the novel staminode iden… CONCLUSIONS  
-#  10 32068783         4        2 While the ecological function of Aquilegia staminodes remains to… CONCLUSIONS  
-#  # … with 936 more rows
+#  # A tibble: 1,094 × 5
+#         pmid paragraph sentence abstract                                                                  label
+#        <int>     <int>    <int> <chr>                                                                     <chr>
+#   1 35176226         1        1 Here, we describe a polymorphic population of Aquilegia coerulea with a … <NA> 
+#   2 35176226         1        2 Although it would be expected that this loss of pollinator reward would … <NA> 
+#   3 35176226         1        3 We identify the underlying locus (APETALA3-3) and multiple causal loss-o… <NA> 
+#   4 35176226         1        4 Elevated linkage disequilibrium around the two most common causal allele… <NA> 
+#   5 35176226         1        5 Lastly, genotypic frequencies at AqAP3-3 indicate a degree of positive a… <NA> 
+#   6 35176226         1        6 Together, these data provide both a compelling example that large-scale … <NA> 
+#   7 35175330         1        1 In-depth investigation of any developmental process in plants requires k… <NA> 
+#   8 35175330         1        2 Floral meristems (FMs) produce floral organs, after which they undergo f… <NA> 
+#   9 35175330         1        3 Using live confocal imaging, we characterized developmental dynamics dur… <NA> 
+#  10 35175330         1        4 Our results uncover distinct patterns of primordium initiation between s… <NA> 
+#  # … with 1,084 more rows
 ```
 
 List the authors and first affiliation and then replace five or more
@@ -150,25 +194,25 @@ names with et al. The untidy author string is also included in the
 ``` r
 x <- pubmed_authors(aq)
 x
-#  # A tibble: 406 x 7
-#         pmid     n last    first    initials orcid affiliation                                                 
-#        <int> <int> <chr>   <chr>    <chr>    <chr> <chr>                                                       
-#   1 32068783     1 Meaders Clara    C        <NA>  Department of Organismic and Evolutionary Biology, Harvard …
-#   2 32068783     2 Min     Ya       Y        <NA>  Department of Organismic and Evolutionary Biology, Harvard …
-#   3 32068783     3 Freedb… Katheri… KJ       <NA>  Department of Organismic and Evolutionary Biology, Harvard …
-#   4 32068783     4 Kramer  Elena    E        <NA>  Department of Organismic and Evolutionary Biology, Harvard …
-#   5 31934675     1 Zhou    Zhi-Li   ZL       <NA>  Institute of Tibetan Plateau Research at Kunming, Kunming I…
-#   6 31934675     2 Duan    Yuan-Wen YW       <NA>  Institute of Tibetan Plateau Research at Kunming, Kunming I…
-#   7 31934675     3 Luo     Yan      Y        <NA>  Gardening and Horticulture Department, Xishuangbanna Tropic…
-#   8 31934675     4 Yang    Yong-Pi… YP       <NA>  Institute of Tibetan Plateau Research at Kunming, Kunming I…
-#   9 31934675     5 Zhang   Zhi-Qia… ZQ       <NA>  Laboratory of Ecology and Evolutionary Biology, Yunnan Univ…
-#  10 31779695     1 Aköz    Gökçe    G        <NA>  Gregor Mendel Institute, Austrian Academy of Sciences, Vien…
-#  # … with 396 more rows
+#  # A tibble: 529 × 7
+#         pmid     n last      first       initials orcid               affiliation                              
+#        <int> <int> <chr>     <chr>       <chr>    <chr>               <chr>                                    
+#   1 35176226     1 Cabin     Zachary     Z        <NA>                Department of Ecology, Evolution, and Ma…
+#   2 35176226     2 Derieg    Nathan J    NJ       <NA>                Department of Ecology, Evolution, and Ma…
+#   3 35176226     3 Garton    Alexandra   A        <NA>                Department of Ecology, Evolution, and Ma…
+#   4 35176226     4 Ngo       Timothy     T        <NA>                Department of Ecology, Evolution, and Ma…
+#   5 35176226     5 Quezada   Ashley      A        <NA>                Department of Ecology, Evolution, and Ma…
+#   6 35176226     6 Gasseholm Constantine C        <NA>                Department of Ecology, Evolution, and Ma…
+#   7 35176226     7 Simon     Mark        M        <NA>                Department of Ecology, Evolution, and Ma…
+#   8 35176226     8 Hodges    Scott A     SA       <NA>                Department of Ecology, Evolution, and Ma…
+#   9 35175330     1 Min       Ya          Y        0000-0002-7526-4516 Department of Organismic and Evolutionar…
+#  10 35175330     2 Conway    Stephanie J SJ       0000-0001-5058-6669 Department of Organismic and Evolutionar…
+#  # … with 519 more rows
 mutate(x, name=ifelse(lead(n) == 5, "et al", paste(last, initials))) %>%
   filter(n < 5) %>%
   group_by(pmid) %>%
   summarize(authors=paste(name, collapse=", "))
-#  # A tibble: 107 x 2
+#  # A tibble: 127 × 2
 #         pmid authors                                        
 #        <int> <chr>                                          
 #   1  5918541 Constantine GH, Vitek MR, Sheth K, et al       
@@ -181,7 +225,7 @@ mutate(x, name=ifelse(lead(n) == 5, "et al", paste(last, initials))) %>%
 #   8 11170673 Chen SB, Gao GY, Leung HW, et al               
 #   9 11171154 Longman AJ, Michaelson LV, Sayanova O, et al   
 #  10 11607343 Grant V                                        
-#  # … with 97 more rows
+#  # … with 117 more rows
 ```
 
 Check the keywords.
@@ -189,20 +233,20 @@ Check the keywords.
 ``` r
 x <- pubmed_keywords(aq)
 x
-#  # A tibble: 144 x 4
+#  # A tibble: 224 × 4
 #         pmid     n majortopic keyword                
 #        <int> <int> <chr>      <chr>                  
-#   1 32068783     1 N          Aquilegia              
-#   2 32068783     2 N          floral organ identity  
-#   3 32068783     3 N          novelty                
-#   4 32068783     4 N          staminode              
-#   5 31934675     1 N          Aquilegia rockii       
-#   6 31934675     2 N          Cell number            
-#   7 31934675     3 N          Columbine              
-#   8 31934675     4 N          Floral polymorphism    
-#   9 31934675     5 N          Intraspecific variation
-#  10 31934675     6 N          Nectar spur            
-#  # … with 134 more rows
+#   1 35176226     1 N          APETALA3-3             
+#   2 35176226     2 N          assortative mating     
+#   3 35176226     3 N          discontinuous variation
+#   4 35176226     4 N          eco-evo-devo           
+#   5 35176226     5 N          floral development     
+#   6 35176226     6 N          herbivory              
+#   7 35176226     7 N          homeotic mutant        
+#   8 35176226     8 N          hopeful monster        
+#   9 35176226     9 N          positive selection     
+#  10 35176226    10 N          soft sweep             
+#  # … with 214 more rows
 ```
 
 Count the MeSH terms.
@@ -210,36 +254,95 @@ Count the MeSH terms.
 ``` r
 x <- pubmed_mesh(aq)
 x
-#  # A tibble: 937 x 6
-#         pmid     n descriptor                qualifier            majortopic mesh                           
-#        <int> <int> <chr>                     <chr>                <chr>      <chr>                          
-#   1 31438840     1 Aquilegia                 genetics             Y          Aquilegia/genetics*            
-#   2 31438840     1 Aquilegia                 growth & development Y          Aquilegia/growth & development*
-#   3 31438840     2 Flowers                   genetics             Y          Flowers/genetics*              
-#   4 31438840     2 Flowers                   growth & development Y          Flowers/growth & development*  
-#   5 31438840     3 Gene Expression Profiling <NA>                 Y          Gene Expression Profiling*     
-#   6 31438840     4 Genes, Plant              genetics             Y          Genes, Plant/genetics*         
-#   7 31438840     5 Plant Nectar              metabolism           Y          Plant Nectar/metabolism*       
-#   8 30793209     1 Adaptation, Biological    <NA>                 N          Adaptation, Biological         
-#   9 30793209     2 Aquilegia                 genetics             Y          Aquilegia/genetics*            
-#  10 30793209     3 Biological Evolution      <NA>                 Y          Biological Evolution*          
-#  # … with 927 more rows
+#  # A tibble: 1,058 × 6
+#         pmid     n descriptor                        qualifier    majortopic mesh                              
+#        <int> <int> <chr>                             <chr>        <chr>      <chr>                             
+#   1 34508638     1 Aquilegia                         <NA>         Y          Aquilegia*                        
+#   2 34508638     2 Brassinosteroids                  <NA>         N          Brassinosteroids                  
+#   3 34508638     3 Cell Division                     <NA>         N          Cell Division                     
+#   4 34508638     4 Flowers                           <NA>         N          Flowers                           
+#   5 34508638     5 Gene Expression Regulation, Plant <NA>         N          Gene Expression Regulation, Plant 
+#   6 34508638     6 Plant Nectar                      <NA>         N          Plant Nectar                      
+#   7 34457112     1 Anti-Inflammatory Agents          pharmacology N          Anti-Inflammatory Agents/pharmaco…
+#   8 34457112     2 Antineoplastic Agents             pharmacology Y          Antineoplastic Agents/pharmacolog…
+#   9 34457112     3 Antioxidants                      pharmacology N          Antioxidants/pharmacology         
+#  10 34457112     4 Aquilegia                         chemistry    Y          Aquilegia/chemistry*              
+#  # … with 1,048 more rows
 mutate(x, mesh=gsub("\\*", "", mesh)) %>%
   count(mesh, sort=TRUE)
-#  # A tibble: 470 x 2
+#  # A tibble: 512 × 2
 #     mesh                                  n
 #     <chr>                             <int>
-#   1 Aquilegia/genetics                   29
-#   2 Animals                              12
-#   3 Plant Extracts/pharmacology          12
-#   4 Aquilegia/chemistry                  11
-#   5 Flowers/genetics                     11
-#   6 Gene Expression Regulation, Plant    11
-#   7 Aquilegia                             9
-#   8 Aquilegia/growth & development        9
-#   9 Aquilegia/metabolism                  9
-#  10 Evolution, Molecular                  9
-#  # … with 460 more rows
+#   1 Aquilegia/genetics                   38
+#   2 Flowers/genetics                     16
+#   3 Gene Expression Regulation, Plant    15
+#   4 Plant Extracts/pharmacology          14
+#   5 Animals                              13
+#   6 Aquilegia                            13
+#   7 Aquilegia/chemistry                  13
+#   8 Aquilegia/growth & development       11
+#   9 Phylogeny                            11
+#  10 Aquilegia/metabolism                 10
+#  # … with 502 more rows
+```
+
+Inspect databanks.
+
+``` r
+x <- pubmed_databanks(aq)
+x
+#  # A tibble: 6 × 5
+#        pmid n_databank databank   n_accession_number accession_number   
+#       <int>      <int> <chr>                   <int> <chr>              
+#  1 30145791          1 GENBANK                     1 MH638630           
+#  2 30145791          1 GENBANK                     2 MH638642           
+#  3 25673682          1 BioProject                  1 PRJNA270946        
+#  4 25314338          1 Dryad                       1 10.5061/dryad.SJ3VP
+#  5 17400892          1 GENBANK                     1 EF489475           
+#  6 17400892          1 GENBANK                     2 EF489476
+count(x, pmid, databank, sort=TRUE)
+#  # A tibble: 4 × 3
+#        pmid databank       n
+#       <int> <chr>      <int>
+#  1 17400892 GENBANK        2
+#  2 30145791 GENBANK        2
+#  3 25314338 Dryad          1
+#  4 25673682 BioProject     1
+```
+
+Inspect publication types.
+
+``` r
+x <- pubmed_pubtypes(aq)
+x
+#  # A tibble: 217 × 4
+#         pmid     n publication_type                         uid    
+#        <int> <int> <chr>                                    <chr>  
+#   1 35176226     1 Journal Article                          D016428
+#   2 35175330     1 Journal Article                          D016428
+#   3 35039842     1 Journal Article                          D016428
+#   4 34508638     1 Journal Article                          D016428
+#   5 34508638     2 Research Support, U.S. Gov't, Non-P.H.S. D013486
+#   6 34457112     1 Journal Article                          D016428
+#   7 34448283     1 Journal Article                          D016428
+#   8 34448283     2 Research Support, Non-U.S. Gov't         D013485
+#   9 34270789     1 Journal Article                          D016428
+#  10 34270789     2 Research Support, N.I.H., Extramural     D052061
+#  # … with 207 more rows
+count(x, publication_type, sort=TRUE)
+#  # A tibble: 10 × 2
+#     publication_type                             n
+#     <chr>                                    <int>
+#   1 Journal Article                            123
+#   2 Research Support, Non-U.S. Gov't            45
+#   3 Research Support, U.S. Gov't, Non-P.H.S.    24
+#   4 Comparative Study                           10
+#   5 Research Support, N.I.H., Extramural         6
+#   6 Letter                                       3
+#   7 Comment                                      2
+#   8 Review                                       2
+#   9 English Abstract                             1
+#  10 Published Erratum                            1
 ```
 
 There are an number of additional nodes that can be parsed in the
@@ -252,27 +355,26 @@ Use `cat(as.character)` to view a single article (truncated below).
 cat(substr(as.character(aq[1]),1,770))
 #  <PubmedArticle>
 #    <MedlineCitation Status="Publisher" Owner="NLM">
-#      <PMID Version="1">32068783</PMID>
+#      <PMID Version="1">35176226</PMID>
 #      <DateRevised>
-#        <Year>2020</Year>
+#        <Year>2022</Year>
 #        <Month>02</Month>
-#        <Day>18</Day>
+#        <Day>17</Day>
 #      </DateRevised>
 #      <Article PubModel="Print-Electronic">
 #        <Journal>
-#          <ISSN IssnType="Electronic">1095-8290</ISSN>
+#          <ISSN IssnType="Electronic">1879-0445</ISSN>
 #          <JournalIssue CitedMedium="Internet">
 #            <PubDate>
-#              <Year>2020</Year>
+#              <Year>2022</Year>
 #              <Month>Feb</Month>
-#              <Day>18</Day>
+#              <Day>11</Day>
 #            </PubDate>
 #          </JournalIssue>
-#          <Title>Annals of botany</Title>
-#          <ISOAbbreviation>Ann. Bot.</ISOAbbreviation>
+#          <Title>Current biology : CB</Title>
+#          <ISOAbbreviation>Curr Biol</ISOAbbreviation>
 #        </Journal>
-#        <ArticleTitle>Developmental and molecular characterization of novel staminodes in Aquilegia.</ArticleTitle>
-#        <ELocationID EIdType=
+#        <ArticleTitle>Non-pollinator selection for a floral homeotic mutant conferring loss of nectar reward in Aquilegia coerulea.</Articl
 ```
 
 Parse a specific node using the helper function `xml_tidy_text` and an
@@ -280,34 +382,34 @@ xpath expression.
 
 ``` r
 xml_tidy_text(aq, "//Chemical/NameOfSubstance", "chemical")
-#  # A tibble: 220 x 3
-#         pmid     n chemical            
-#        <int> <int> <chr>               
-#   1 31438840     1 Plant Nectar        
-#   2 30145791     1 Plant Nectar        
-#   3 30047083     1 DNA, Bacterial      
-#   4 30047083     2 DNA, Ribosomal      
-#   5 30047083     3 Fatty Acids         
-#   6 30047083     4 Peptidoglycan       
-#   7 30047083     5 Phospholipids       
-#   8 30047083     6 Pigments, Biological
-#   9 30047083     7 RNA, Ribosomal, 16S 
-#  10 30047083     8 Vitamin K 2         
-#  # … with 210 more rows
+#  # A tibble: 243 × 3
+#         pmid     n chemical                 
+#        <int> <int> <chr>                    
+#   1 34508638     1 Brassinosteroids         
+#   2 34508638     2 Plant Nectar             
+#   3 34457112     1 Anti-Inflammatory Agents 
+#   4 34457112     2 Antineoplastic Agents    
+#   5 34457112     3 Antioxidants             
+#   6 34457112     4 Cholinesterase Inhibitors
+#   7 34457112     5 Hypoglycemic Agents      
+#   8 34457112     6 Plant Extracts           
+#   9 34457112     7 Reactive Oxygen Species  
+#  10 34457112     8 Zinc Oxide               
+#  # … with 233 more rows
 
 xml_tidy_text(aq, "//Reference//ArticleId[@IdType='pubmed']", "cited")
-#  # A tibble: 1,022 x 3
+#  # A tibble: 1,729 × 3
 #         pmid     n cited   
 #        <int> <int> <chr>   
-#   1 31934675     1 16284709
-#   2 31934675     2 26800256
-#   3 31934675     3 20497348
-#   4 31934675     4 25063469
-#   5 31934675     5 18223038
-#   6 31934675     6 26779209
-#   7 31934675     7 17526522
-#   8 31934675     8 21790812
-#   9 31934675     9 19910308
-#  10 31934675    10 22388286
-#  # … with 1,012 more rows
+#   1 35039842     1 19575583
+#   2 35039842     2 21574138
+#   3 35039842     3 22907771
+#   4 35039842     4 12623068
+#   5 35039842     5 17554306
+#   6 35039842     6 15918888
+#   7 35039842     7 33036280
+#   8 35039842     8 26062733
+#   9 35039842     9 23256150
+#  10 35039842    10 22090381
+#  # … with 1,719 more rows
 ```
