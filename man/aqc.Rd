@@ -4,7 +4,9 @@
 \name{aqc}
 \alias{aqc}
 \title{Aquilegia search results}
-\format{An character string with 107 articles.}
+\format{
+An character string with 107 articles.
+}
 \source{
 NCBI PubMed
 }
