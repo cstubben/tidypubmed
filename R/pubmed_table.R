@@ -57,6 +57,7 @@ pubmed_table <- function(nodes, etal=FALSE, iso=FALSE){
    x$country <- xml_text_first(nodes, "//MedlineJournalInfo/Country")
    x$doi <- xml_text_first(nodes, '//ArticleId[@IdType="doi"]')
    x$pii <- xml_text_first(nodes, '//ArticleId[@IdType="pii"]')
+   x$pmc <- xml_text_first(nodes, '//ArticleId[@IdType="pmc"]')
    x$pmid <- as.integer(x$pmid)
    x
 }

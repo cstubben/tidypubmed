@@ -2,10 +2,12 @@
 
 export(pubmed_abstract)
 export(pubmed_authors)
+export(pubmed_databanks)
 export(pubmed_fetch)
 export(pubmed_keywords)
 export(pubmed_mesh)
 export(pubmed_nodeset)
+export(pubmed_pubtypes)
 export(pubmed_search)
 export(pubmed_table)
 export(xml_attr_first)
