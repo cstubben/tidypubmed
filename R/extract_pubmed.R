@@ -1,4 +1,4 @@
-#' Extract dataypes from PubMed XML records
+#' Extract datatypes from PubMed XML records
 #'
 #' @param filepath Character. Filepath including directory portion. Filepath should end in ".xml". If \code{pmid} is not provided, filename should be PMID.
 #' @param pmid Character. Default = NULL in which case \code{pmid} parsed from the filename.

@@ -22,7 +22,7 @@
 #' }
 #' \dontrun{
 #' c(99999999, 12345678) %>%
-#'   walk(download_pubmed,
+#'   purrr::walk(download_pubmed,
 #'        dir = here("data", "raw", "pubmed"),
 #'        api_key = keyring::key_get("ncbi-pubmed")
 #'   )

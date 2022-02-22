@@ -2,7 +2,7 @@
 % Please edit documentation in R/extract_pubmed.R
 \name{extract_pubmed}
 \alias{extract_pubmed}
-\title{Extract dataypes from PubMed XML records}
+\title{Extract datatypes from PubMed XML records}
 \usage{
 extract_pubmed(
   filepath,
@@ -27,5 +27,5 @@ extract_pubmed(
 Dataframe with output from corresponding "pubmed_" function
 }
 \description{
-Extract dataypes from PubMed XML records
+Extract datatypes from PubMed XML records
 }
